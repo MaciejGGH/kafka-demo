@@ -20,10 +20,20 @@ services:
       context: ./producer
     ports:
       - "8282:80"
-
+    depends_on:
+      - kafka
+    entrypoint: ["python3", "app.py"]
+    volumes:
+      - ./producer/src:/app
+      
   consumer:
     image: peterc/kafka-flask-consumer-example:latest
     build:
       context: ./consumer
     ports:
       - "8283:80"
+    depends_on:
+      - kafka
+    entrypoint: ["python3", "app.py"]
+    volumes:
+      - ./consumer/src:/app          
