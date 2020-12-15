@@ -24,6 +24,13 @@ class Publisher:
 
     def push(self, message):
         self.logger.debug("Publishing: {0}".format(message))
+        # handle dynamic topic
+        # if 'topic' specified in message
+        try:
+            self.logger.debug("Target topic: {0}".format(message["topic"]))
+            topic = message["topic"]
+        except KeyError:
+            self.logger.debug("Topic key not found in message")        
         try:
             if self.producer:
                 self.producer.send(topic,
