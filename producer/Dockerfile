@@ -20,8 +20,9 @@ RUN pip3 install --upgrade pip && \
 # expose http port
 EXPOSE 80
 
+# move below to docker-compose
 # copy config files into filesystem
-COPY src .
+# COPY src .
 
 # exectute start up script
-ENTRYPOINT ["python3", "app.py"]
+# ENTRYPOINT ["python3", "app.py"]
