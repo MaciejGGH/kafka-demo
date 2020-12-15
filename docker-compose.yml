@@ -37,3 +37,28 @@ services:
     entrypoint: ["python3", "app.py"]
     volumes:
       - ./consumer/src:/app          
+
+  kafdrop:
+    image: obsidiandynamics/kafdrop
+    ports:
+      - "9000:9000"
+    environment:
+      KAFKA_BROKERCONNECT: kafka:9092
+      JVM_OPTS: "-Xms16M -Xmx48M -Xss180K -XX:-TieredCompilation -XX:+UseStringDeduplication"
+    depends_on:
+      - kafka
+      - zookeeper
+    command: export myvar=123; echo $myvar
+
+  webview:
+    image: sourcelaborg/kafka-webview:latest
+    ports:
+     - "8080:8080"
+    volumes:
+     - kafkawebview_data:/app/data
+    depends_on:
+      - kafka
+      - zookeeper
+
+volumes: 
+ kafkawebview_data:
