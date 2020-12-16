@@ -35,13 +35,17 @@ class Reader:
         self.consumer.seek(TopicPartition(topic, 0), 0)
         self.logger.debug("ok {0}".format(time.time()))
 
-    def next(self):
+    def topics(self):
+        return self.consumer.topics()
+
+    def next(self, topic):
         """
         Get the "next" event.  This is a pretty naive implementation.  It
         doesn't try to deal with multiple partitions or anything and it assumes
         the event payload is json.
         :return: The event in json form
         """
+        self.consumer.subscribe(topic)
         self.logger.debug("Reading stream: {0}".format(topic))
         try:
             if self.consumer:
