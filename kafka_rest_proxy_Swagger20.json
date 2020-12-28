@@ -1,0 +1,1361 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "5.2.1",
+    "title": "REST Proxy API",
+    "description": "The Confluent REST Proxy provides a RESTful interface to a Kafka cluster, making it easy to produce and consume messages, view the state of the cluster, and perform administrative actions without using the native Kafka protocol or clients. <p>Some example use cases are</p> <ul> <li>Reporting data to Kafka from any frontend app built in any language not supported by official Confluent clients</li> <li>Ingesting messages into a stream processing framework that doesn’t yet support Kafka</li> <li>Scripting administrative actions</li> </ul>",
+    "contact": {}
+  },
+  "host": "www.example.com",
+  "basePath": "/",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/topics": {
+      "get": {
+        "description": "",
+        "summary": "Topics_GET",
+        "operationId": "Topics_GET",
+        "deprecated": false,
+        "produces": [
+          "application/vnd.kafka.v2+json"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/topics/{topicName}": {
+      "get": {
+        "description": "",
+        "summary": "TopicsByTopicName_GET",
+        "operationId": "TopicsByTopicName_GET",
+        "deprecated": false,
+        "produces": [
+          "application/vnd.kafka.v2+json"
+        ],
+        "parameters": [
+          {
+            "name": "topicName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "topic name"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/topic"
+            },
+            "headers": {}
+          },
+          "404": {
+            "description": "Error code 40401 -- Topic not found",
+            "schema": {}
+          }
+        }
+      },
+      "post": {
+        "description": "post messages to a given topic",
+        "summary": "TopicsByTopicName_POST",
+        "operationId": "TopicsByTopicName_POST",
+        "deprecated": false,
+        "produces": [
+          "application/vnd.kafka.v2+json"
+        ],
+        "consumes": [
+          "application/vnd.kafka.binary.v2+json"
+        ],
+        "parameters": [
+          {
+            "name": "topicName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "name of topic to produce the messages to"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "description": "message(s) to produce to the given topic",
+            "schema": {
+              "$ref": "#/definitions/messages"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "message(s) posted",
+            "schema": {
+              "$ref": "#/definitions/messages_response"
+            },
+            "headers": {}
+          },
+          "404": {
+            "description": "40401 -- Topic not found",
+            "schema": {}
+          },
+          "422": {
+            "description": "42201 -- Request includes keys and uses a format that requires schemas, but does not include the `key_schema` or `key_schema_id` fields<br> 42202  -- Request includes values and uses a format that requires schemas, but does not include the `value_schema` or `value_schema_id` fields<br>\n 42205 -- Request includes invalid schema.",
+            "schema": {}
+          }
+        }
+      }
+    },
+    "/topics/{topicName}/partitions": {
+      "get": {
+        "description": "Get a list of partitions for the topic",
+        "summary": "TopicsPartitionsByTopicName_GET",
+        "operationId": "TopicsPartitionsByTopicName_GET",
+        "deprecated": false,
+        "produces": [
+          "application/vnd.kafka.v2+json"
+        ],
+        "parameters": [
+          {
+            "name": "topicName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "the name of the topic"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/partition"
+              }
+            },
+            "headers": {}
+          },
+          "404": {
+            "description": "topic not found",
+            "schema": {}
+          }
+        }
+      }
+    },
+    "/topics/{topicName}/partitions/{partitionID}": {
+      "get": {
+        "description": "Get metadata about a single partition in the topic",
+        "summary": "TopicsPartitionsByTopicName_GET",
+        "operationId": "GetTopicsPartitionsByTopicName_GET",
+        "deprecated": false,
+        "produces": [
+          "application/vnd.kafka.v2+json"
+        ],
+        "parameters": [
+          {
+            "name": "topicName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Name of the topic"
+          },
+          {
+            "name": "partitionID",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "ID of the partition to inspect"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/partition"
+              }
+            },
+            "headers": {}
+          }
+        }
+      },
+      "post": {
+        "description": "Produce messages to one partition of the topic",
+        "summary": "TopicsPartitionsByTopicName_POST",
+        "operationId": "TopicsPartitionsByTopicName_POST",
+        "deprecated": false,
+        "produces": [
+          "application/vnd.kafka.v2+json"
+        ],
+        "consumes": [
+          "application/vnd.kafka.v2+json"
+        ],
+        "parameters": [
+          {
+            "name": "topicName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "name of topic to produce the messages to"
+          },
+          {
+            "name": "partitionID",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int32",
+            "description": ""
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "description": "message(s) to produce to the given topic",
+            "schema": {
+              "$ref": "#/definitions/messages"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "message(s) posted",
+            "schema": {
+              "$ref": "#/definitions/messages_response"
+            },
+            "headers": {}
+          },
+          "404": {
+            "description": "40401 -- Topic not found<br> 40402 -- Partition not found",
+            "schema": {}
+          },
+          "422": {
+            "description": "42201 -- Request includes keys and uses a format that requires schemas, but does not include the `key_schema` or `key_schema_id` fields<br> 42202  -- Request includes values and uses a format that requires schemas, but does not include the `value_schema` or `value_schema_id` fields<br>\n 42205 -- Request includes invalid schema.",
+            "schema": {}
+          }
+        }
+      }
+    },
+    "/consumers/{group_name}": {
+      "post": {
+        "description": "Create a new consumer instance in the consumer group",
+        "summary": "ConsumersByGroupName_POST",
+        "operationId": "ConsumersByGroupName_POST",
+        "deprecated": false,
+        "produces": [
+          "application/vnd.kafka.v2+json"
+        ],
+        "consumes": [
+          "application/vnd.kafka.v2+json"
+        ],
+        "parameters": [
+          {
+            "name": "group_name",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/consumer_group"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Consumer group created",
+            "schema": {
+              "$ref": "#/definitions/ConsumersResponse"
+            },
+            "headers": {}
+          },
+          "409": {
+            "description": "Consumer instance with the specified name already exists",
+            "schema": {}
+          },
+          "422": {
+            "description": "Invalid consumer configuration",
+            "schema": {}
+          }
+        }
+      }
+    },
+    "/consumers/{group_name}/instances/{instance}": {
+      "delete": {
+        "description": "Delete the consumer instance",
+        "summary": "ConsumersInstancesByGroupNameAndInstance_DELETE",
+        "operationId": "ConsumersInstancesByGroupNameAndInstance_DELETE",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "group_name",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The name of the consumer group"
+          },
+          {
+            "name": "instance",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The ID of the consumer instance"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Success",
+            "headers": {}
+          },
+          "404": {
+            "description": "40403 -- Consumer instance not found",
+            "schema": {}
+          }
+        }
+      }
+    },
+    "/consumers/{group_name}/instances/{instance}/offsets": {
+      "post": {
+        "description": "Commit a list of offsets for the consumer.  When the post body is empty, it commits all the records that have been fetched by the consumer instance.",
+        "summary": "ConsumersInstancesOffsetsByGroupName_POST",
+        "operationId": "ConsumersInstancesOffsetsByGroupName_POST",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/vnd.kafka.v2+json"
+        ],
+        "parameters": [
+          {
+            "name": "group_name",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The name of the consumer group"
+          },
+          {
+            "name": "instance",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The ID of the consumer instance"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": false,
+            "description": "The offsets to commit",
+            "schema": {
+              "$ref": "#/definitions/offsets"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {}
+          },
+          "404": {
+            "description": "40403 -- Consumer instance not found",
+            "schema": {}
+          }
+        }
+      },
+      "get": {
+        "description": "Get the latest committed offsets for the given partitions",
+        "summary": "ConsumersInstancesOffsetsByGroupName_GET",
+        "operationId": "ConsumersInstancesOffsetsByGroupName_GET",
+        "deprecated": false,
+        "produces": [
+          "application/vnd.kafka.v2+json"
+        ],
+        "parameters": [
+          {
+            "name": "group_name",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The name of the consumer group"
+          },
+          {
+            "name": "instance",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The ID of the consumer instance"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/offsets_response"
+            },
+            "headers": {}
+          },
+          "404": {
+            "description": "40402 -- Partition not found<br> 40403 -- Consumer instance not found",
+            "schema": {}
+          }
+        }
+      }
+    },
+    "/consumers/{group_name}/instances/{instance}/subscription": {
+      "post": {
+        "description": "Subscribe to the given list of topics or a topic pattern to get dynamically assigned partition.  If a prior subscription exists, it would be replaced by the latest subscription.",
+        "summary": "ConsumersInstancesSubscription_POST",
+        "operationId": "ConsumersInstancesSubscription_POST",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/vnd.kafka.v2+json"
+        ],
+        "parameters": [
+          {
+            "name": "group_name",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The name of the consumer group"
+          },
+          {
+            "name": "instance",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The ID of the consumer instance"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Success",
+            "headers": {}
+          },
+          "404": {
+            "description": "40403 -- Consumer instance not found",
+            "schema": {}
+          },
+          "409": {
+            "description": "40903 -- Subscription to topics, partitions and pattern are mutually exclusive",
+            "schema": {}
+          }
+        }
+      },
+      "get": {
+        "description": "Get the current subscribed list of topics",
+        "summary": "ConsumersInstancesSubscription_GET",
+        "operationId": "ConsumersInstancesSubscription_GET",
+        "deprecated": false,
+        "produces": [
+          "application/vnd.kafka.v2+json"
+        ],
+        "parameters": [
+          {
+            "name": "group_name",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The name of the consumer group"
+          },
+          {
+            "name": "instance",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The ID of the consumer instance"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type": "object"
+            },
+            "headers": {}
+          },
+          "404": {
+            "description": "40403 -- Consumer instance not found",
+            "schema": {}
+          }
+        }
+      },
+      "delete": {
+        "description": "Unsubscribe from the topics currently subscribed",
+        "summary": "ConsumersInstancesSubscription_DELETE",
+        "operationId": "ConsumersInstancesSubscription_DELETE",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "group_name",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The name of the consumer group"
+          },
+          {
+            "name": "instance",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The ID of the consumer instance"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "success",
+            "headers": {}
+          },
+          "404": {
+            "description": "40403 -- Consumer instance not found",
+            "schema": {}
+          }
+        }
+      }
+    },
+    "/consumers/{group_name}/instances/{instance}/assignments": {
+      "post": {
+        "description": "Manually assign a list of partitions to this consumer.",
+        "summary": "ConsumersInstancesAssignmentsByGroupName_POST",
+        "operationId": "ConsumersInstancesAssignmentsByGroupName_POST",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/vnd.kafka.v2+json"
+        ],
+        "parameters": [
+          {
+            "name": "group_name",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The name of the consumer group"
+          },
+          {
+            "name": "instance",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The ID of the consumer instance"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/assignment"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "success",
+            "headers": {}
+          },
+          "404": {
+            "description": "40403 -- Consumer instance not found",
+            "schema": {}
+          },
+          "409": {
+            "description": "40903 -- Subscription to topics, partitions and pattern are mutually exclusive",
+            "schema": {}
+          }
+        }
+      },
+      "get": {
+        "description": "Get the list of partitions currently manually assigned to this consumer",
+        "summary": "ConsumersInstancesAssignmentsByGroupName_GET",
+        "operationId": "ConsumersInstancesAssignmentsByGroupName_GET",
+        "deprecated": false,
+        "produces": [
+          "application/vnd.kafka.v2+json"
+        ],
+        "parameters": [
+          {
+            "name": "group_name",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The name of the consumer group"
+          },
+          {
+            "name": "instance",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The ID of the consumer instance"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/assignment"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/consumers/{group_name}/instances/{instance}/positions": {
+      "post": {
+        "description": "Overrides the fetch offsets that the consumer will use for the next set of records to fetch",
+        "summary": "ConsumersInstancesPositionsByGroupName_POST",
+        "operationId": "ConsumersInstancesPositionsByGroupName_POST",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/vnd.kafka.v2+json"
+        ],
+        "parameters": [
+          {
+            "name": "group_name",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The name of the consumer group"
+          },
+          {
+            "name": "instance",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The ID of the consumer instance"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": false,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/ConsumersInstancesPositionsRequest"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "success",
+            "headers": {}
+          },
+          "404": {
+            "description": "40403 -- Consumer instance not found",
+            "schema": {}
+          }
+        }
+      }
+    },
+    "/consumers/{group_name}/instances/{instance}/beginning": {
+      "post": {
+        "description": "Seek to the first offset for each of the given partitions",
+        "summary": "ConsumersInstancesBeginningByGroupName_POST",
+        "operationId": "ConsumersInstancesBeginningByGroupName_POST",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/vnd.kafka.v2+json"
+        ],
+        "parameters": [
+          {
+            "name": "group_name",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The name of the consumer group"
+          },
+          {
+            "name": "instance",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The ID of the consumer instance"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/partition_positions"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Success",
+            "headers": {}
+          },
+          "404": {
+            "description": "40403 -- Consumer instance not found",
+            "schema": {}
+          }
+        }
+      }
+    },
+    "/consumers/{group_name}/instances/{instance}/end": {
+      "post": {
+        "description": "Seek to the last offset for each of the given partitions",
+        "summary": "ConsumersInstancesEndByGroupName_POST",
+        "operationId": "ConsumersInstancesEndByGroupName_POST",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/vnd.kafka.v2+json"
+        ],
+        "parameters": [
+          {
+            "name": "group_name",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The name of the consumer group"
+          },
+          {
+            "name": "instance",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The ID of the consumer instance"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/partition_positions"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Success",
+            "headers": {}
+          },
+          "404": {
+            "description": "40403 -- Consumer instance not found",
+            "schema": {}
+          }
+        }
+      }
+    },
+    "/consumers/{group_name}/instances/{instance}/records": {
+      "get": {
+        "description": "Fetch data for the topics or partitions specified using one of the subscribe/assign APIs",
+        "summary": "ConsumersInstancesRecordsByGroupName_GET",
+        "operationId": "ConsumersInstancesRecordsByGroupName_GET",
+        "deprecated": false,
+        "produces": [
+          "application/vnd.kafka.binary.v2+json"
+        ],
+        "parameters": [
+          {
+            "name": "group_name",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The name of the consumer group"
+          },
+          {
+            "name": "instance",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The ID of the consumer instance"
+          },
+          {
+            "name": "timeout",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32",
+            "description": "Maximum amount of milliseconds the REST proxy will spend fetching records"
+          },
+          {
+            "name": "max_bytes",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32",
+            "description": "The maximum number of bytes of unencoded keys and values that should be included in the response"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "records back from Kafka",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/record1"
+              }
+            },
+            "headers": {}
+          },
+          "404": {
+            "description": "40403 -- Consumer instance not found",
+            "schema": {}
+          },
+          "406": {
+            "description": "40601 -- Consumer format does not match the embedded format requested by the `Accept` header",
+            "schema": {}
+          }
+        }
+      }
+    },
+    "/brokers": {
+      "get": {
+        "description": "Get a list of brokers",
+        "summary": "Brokers_GET",
+        "operationId": "Brokers_GET",
+        "deprecated": false,
+        "produces": [
+          "application/vnd.kafka.v2+json"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "A list of broker IDs",
+            "schema": {
+              "$ref": "#/definitions/BrokersResponse"
+            },
+            "headers": {}
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "topic": {
+      "title": "topic",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "Name of the topic",
+          "type": "string"
+        },
+        "configs": {
+          "description": "Per-topic configuration overrides",
+          "type": "object"
+        },
+        "partitions": {
+          "description": "List of partitions for this topic",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Partition5"
+          }
+        }
+      }
+    },
+    "messages": {
+      "title": "messages",
+      "type": "object",
+      "properties": {
+        "key_schema": {
+          "description": "Full schema encoded as a string (e.g. JSON serioalized for Avro data)",
+          "type": "string"
+        },
+        "value_schema": {
+          "description": "Full schema encoded as a string (e.g. JSON serioalized for Avro data)",
+          "type": "string"
+        },
+        "records": {
+          "description": "a list of records to produce to the topic",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Record"
+          }
+        }
+      }
+    },
+    "messages_response": {
+      "title": "messages_response",
+      "type": "object",
+      "properties": {
+        "key_schema_id": {
+          "description": "The ID for the schema used to produce keys, or null if keys were not used",
+          "type": "integer",
+          "format": "int32"
+        },
+        "value_schema_id": {
+          "description": "The ID for the schema used to produce keys, or null if keys were not used",
+          "type": "integer",
+          "format": "int32"
+        },
+        "offsets": {
+          "description": "List of partitions and offsets the messages were published to",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Offset"
+          }
+        }
+      }
+    },
+    "partition": {
+      "title": "partition",
+      "type": "object",
+      "properties": {
+        "partition": {
+          "description": "ID of the partition",
+          "type": "integer",
+          "format": "int32"
+        },
+        "leader": {
+          "description": "Broker ID of the leader for this partition",
+          "type": "integer",
+          "format": "int32"
+        },
+        "replicas": {
+          "description": "List of brokers acting as replicas for this partition",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Replica1"
+          }
+        }
+      }
+    },
+    "consumer_group": {
+      "title": "consumer_group",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "Name for the consumer instance, which will be used in URLs for the consumer",
+          "type": "string"
+        },
+        "format": {
+          "$ref": "#/definitions/Format"
+        },
+        "auto.offset.reset": {
+          "description": "sets the `auto.offset.reset` setting for the consumer",
+          "type": "string"
+        },
+        "auto.commit.enable": {
+          "description": "sets the `auto.commit.enable` setting for the consumer",
+          "type": "string"
+        },
+        "fetch.min.bytes": {
+          "description": "sets the `fetch.min.bytes` setting for this consumer specifically",
+          "type": "string"
+        },
+        "consumer.request.timeout.ms": {
+          "description": "sets the `consumer.request.timeout.ms` setting for this consumer specifically",
+          "type": "string"
+        }
+      }
+    },
+    "offsets": {
+      "title": "offsets",
+      "type": "object",
+      "properties": {
+        "offsets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Offsets1"
+          }
+        }
+      }
+    },
+    "offsets_query": {
+      "title": "offsets_query",
+      "type": "object",
+      "properties": {
+        "partitions": {
+          "description": "A list of partitions to find the last committed offsets for",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Partition2"
+          }
+        }
+      }
+    },
+    "offsets_response": {
+      "title": "offsets_response",
+      "type": "object",
+      "properties": {
+        "offsets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Offsets2"
+          }
+        }
+      }
+    },
+    "topic_subscription": {
+      "title": "topic_subscription",
+      "type": "object",
+      "properties": {
+        "topics": {
+          "description": "A list of topics to subscribe",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "topic_pattern_subscription": {
+      "title": "topic_pattern_subscription",
+      "type": "object",
+      "properties": {
+        "topic_pattern": {
+          "description": "A pattern of topics to subscribe to",
+          "type": "string"
+        }
+      }
+    },
+    "assignment": {
+      "title": "assignment",
+      "type": "object",
+      "properties": {
+        "partitions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Partition2"
+          }
+        }
+      }
+    },
+    "partition_positions": {
+      "title": "partition_positions",
+      "type": "object",
+      "properties": {
+        "partitions": {
+          "description": "A list of partitions",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Partition4"
+          }
+        }
+      }
+    },
+    "BrokersResponse": {
+      "title": "BrokersResponse",
+      "type": "object",
+      "properties": {
+        "brokers": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      }
+    },
+    "ConsumersInstancesPositionsRequest": {
+      "title": "ConsumersInstancesPositionsRequest",
+      "type": "object",
+      "properties": {
+        "offsets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Offsets3"
+          }
+        }
+      }
+    },
+    "ConsumersResponse": {
+      "title": "ConsumersResponse",
+      "type": "object",
+      "properties": {
+        "instance_id": {
+          "description": "Unique ID for the consumer instance in this group",
+          "type": "string"
+        },
+        "base_uri": {
+          "description": "Base URI used to construct URIs for subsequent requests against this consumer instance.  This will be of the form `http://hostname:port/consumers/consumer_group/instances/instance_id`",
+          "type": "string"
+        }
+      }
+    },
+    "ErrorCode": {
+      "title": "ErrorCode",
+      "description": "An error code classifying the reason the operation failed, or null if it succeeded",
+      "example": 1,
+      "type": "integer",
+      "format": "int32",
+      "enum": [
+        "1",
+        "2"
+      ]
+    },
+    "Format": {
+      "title": "Format",
+      "description": "The format of consumed messages, which is used to convert messages into a JSON-compatible form.",
+      "type": "string",
+      "enum": [
+        "binary",
+        "avro",
+        "json"
+      ]
+    },
+    "Offset": {
+      "title": "Offset",
+      "type": "object",
+      "properties": {
+        "partition": {
+          "description": "Partition the message was published to, or null if publishing the message failed",
+          "type": "integer",
+          "format": "int32"
+        },
+        "offset": {
+          "description": "Offset of the message, or null if publishing the message failed",
+          "type": "integer",
+          "format": "int32"
+        },
+        "error_code": {
+          "$ref": "#/definitions/ErrorCode"
+        },
+        "error": {
+          "description": "An error message describing why the operation failed, or null if it succeeded",
+          "type": "string"
+        }
+      }
+    },
+    "Offsets1": {
+      "title": "Offsets1",
+      "type": "object",
+      "properties": {
+        "topic": {
+          "description": "Name of the topic",
+          "type": "string"
+        },
+        "partition": {
+          "description": "Partition ID",
+          "type": "integer",
+          "format": "int32"
+        },
+        "offset": {
+          "description": "The offset to commit",
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "Offsets2": {
+      "title": "Offsets2",
+      "type": "object",
+      "properties": {
+        "topic": {
+          "description": "Name of the topic",
+          "type": "string"
+        },
+        "partition": {
+          "description": "Partition ID",
+          "type": "integer",
+          "format": "int32"
+        },
+        "offset": {
+          "description": "Committed offset",
+          "type": "integer",
+          "format": "int32"
+        },
+        "metadata": {
+          "description": "Metadata for the committed offset",
+          "type": "string"
+        }
+      }
+    },
+    "Offsets3": {
+      "title": "Offsets3",
+      "type": "object",
+      "properties": {
+        "topic": {
+          "type": "string"
+        },
+        "partition": {
+          "description": "Partition ID",
+          "type": "integer",
+          "format": "int32"
+        },
+        "offset": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "Partition2": {
+      "title": "Partition2",
+      "type": "object",
+      "properties": {
+        "topic": {
+          "description": "Name of the topic",
+          "type": "string"
+        },
+        "partition": {
+          "description": "Partition ID",
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "Partition4": {
+      "title": "Partition4",
+      "type": "object",
+      "properties": {
+        "topic": {
+          "type": "string"
+        },
+        "partition": {
+          "description": "Partition ID",
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "Partition5": {
+      "title": "Partition5",
+      "type": "object",
+      "properties": {
+        "partition": {
+          "description": "the ID of this partition",
+          "type": "integer",
+          "format": "int32"
+        },
+        "leader": {
+          "description": "the broker ID of the leader for this partition",
+          "type": "integer",
+          "format": "int32"
+        },
+        "replicas": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Replica"
+          }
+        }
+      }
+    },
+    "Record": {
+      "title": "Record",
+      "type": "object",
+      "properties": {
+        "key": {
+          "description": "The message key, formatted according to the embedded format, or null to omit a key (optional)",
+          "type": "string"
+        },
+        "value": {
+          "description": "The message value, formatted according to the embedded format",
+          "type": "string"
+        },
+        "partion": {
+          "description": "Partition to store the message in (optional)",
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "record1": {
+      "title": "record1",
+      "type": "object",
+      "properties": {
+        "topic": {
+          "description": "The topic",
+          "type": "string"
+        },
+        "key": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        },
+        "partition": {
+          "description": "Partition of the message",
+          "type": "integer",
+          "format": "int32"
+        },
+        "offset": {
+          "description": "Offset of the message",
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "Replica": {
+      "title": "Replica",
+      "type": "object",
+      "properties": {
+        "broker": {
+          "description": "broker ID of the replica",
+          "type": "integer",
+          "format": "int32"
+        },
+        "leader": {
+          "description": "true if this replica is the leader for the partition",
+          "type": "boolean"
+        },
+        "in_sync": {
+          "description": "true if this replica is currently in sync with the leader",
+          "type": "boolean"
+        }
+      }
+    },
+    "Replica1": {
+      "title": "Replica1",
+      "type": "object",
+      "properties": {
+        "broker": {
+          "description": "Broker ID of the replica",
+          "type": "integer",
+          "format": "int32"
+        },
+        "leader": {
+          "description": "true if this broker is the leader for the partition",
+          "type": "boolean"
+        },
+        "in_sync": {
+          "description": "true if the replica is in sync with the leader",
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "tags": [],
+  "externalDocs": {
+    "url": "https://docs.confluent.io/current/kafka-rest/",
+    "description": "Confluent's API Reference"
+  }
+}
